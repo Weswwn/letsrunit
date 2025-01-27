@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
+          <string>letsrunit</string>
           <string>com.weswwn.letsrunit</string>
         </array>
       </dict>
