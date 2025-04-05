@@ -1,24 +1,33 @@
-import { Text, View } from "react-native";
-import { useState, useEffect } from "react";
+import { View } from "react-native";
+import { useState, useEffect, createContext } from "react";
 import { supabase } from "../client/supabase";
-import { Login } from "../components/login";
+import Login from "../components/login";
 import { Session } from "@supabase/supabase-js";
 import "../global.css";
+import { fetchUserSession } from "@/client/services/login";
+import Home from "./Home";
+
+export const ProfileContext = createContext<Session | null>(null);
 
 export default function App() {
-  const [session, setSession] = useState<Session | null>(null);
+  const [userSession, setUserSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    const getUserSession = async () => {
+      const session = await fetchUserSession();
+      setUserSession(session);
+    };
 
+    getUserSession();
     supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      setUserSession(session);
     });
   }, []);
 
-  const isLoggedIn = session && session.user;
-
-  return <View>{!isLoggedIn && <Login />}</View>;
+  const isLoggedIn = userSession && userSession.user;
+  return (
+    <ProfileContext.Provider value={userSession}>
+      <View>{isLoggedIn ? <Home /> : <Login />}</View>
+    </ProfileContext.Provider>
+  );
 }

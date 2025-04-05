@@ -3,6 +3,7 @@ import { Alert, StyleSheet, View, Text } from "react-native";
 import { supabase } from "../client/supabase";
 import { Button, Input } from "@rneui/themed";
 import { makeRedirectUri } from "expo-auth-session";
+import { AuthOtpResponse } from "@supabase/supabase-js";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as Linking from "expo-linking";
 
@@ -22,9 +23,12 @@ const createSessionFromUrl = async (url: string) => {
   return data.session;
 };
 
-export const Login = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loginData, setLoginData] = useState<null | AuthOtpResponse["data"]>(
+    null
+  );
 
   const url = Linking.useURL();
   if (url) createSessionFromUrl(url);
@@ -38,13 +42,21 @@ export const Login = () => {
         emailRedirectTo: redirectTo,
       },
     });
-    console.log("check response from OTP:", error, data);
+    setLoginData(data);
   };
 
   if (loading) {
     return (
       <View>
         <Text>Loading</Text>
+      </View>
+    );
+  }
+
+  if (loginData) {
+    return (
+      <View>
+        <Text>Please check your email to complete login!</Text>
       </View>
     );
   }
@@ -65,3 +77,5 @@ export const Login = () => {
     </View>
   );
 };
+
+export default Login;
